@@ -1,0 +1,13 @@
+<form method="post" ng-submit="signup()" name="signupForm">
+    <div>
+        <input type="text" name="displayName" ng-model="displayName" placeholder="Name" required >
+    </div>
+    <div>
+        <input type="email" id="email" name="email" ng-model="email" placeholder="Email" required />
+    </div>
+    <div>
+        <input password-strengthtype="password" name="password" ng-model="password" placeholder="Password" required type="pasword">
+    </div>
+    <button type="submit" ng-disabled="signupForm.$invalid">Sign up</button>
+    <p>Already have an account? <a href="/#/login">Log in now</a></p>
+</form>

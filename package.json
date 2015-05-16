@@ -1,0 +1,17 @@
+{
+  "name": "jarl",
+  "version": "1.0.0",
+  "main": "server.js",
+  "author": "Alejandro Rivas <jarlalejor@gmail.com>",
+  "license": "BDS",
+  "dependencies": {
+    "bcryptjs": "^2.1.0",
+    "body-parser": "^1.12.4",
+    "cors": "^2.6.0",
+    "express": "^4.12.3",
+    "jwt-simple": "^0.3.0",
+    "moment": "^2.10.3",
+    "mongoose": "^4.0.3",
+    "request": "^2.55.0"
+  }
+}
