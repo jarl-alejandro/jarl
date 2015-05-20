@@ -1,18 +1,18 @@
-angular.module("Jarl", ['ngResource', 'ngMessages', 'ui.router', 'mgcrea.ngStrap', 'satellizer'])
+angular.module("Jarl", ['ngResource', 'ui.router', 'satellizer'])
 	.config(function($stateProvider, $urlRouterProvider, $authProvider){
 		$stateProvider
 			.state('home', {
 				url: "/",
-				templateUrl: "templates/home.html"
+				templateUrl: "app/templates/home.html"
 			})
 			.state('login', {
 				url: "/login",
-				templateUrl: "templates/login.html",
+				templateUrl: "app/templates/login.html",
 				controller: "LoginCtrl"
 			})
 			.state('signup', {
 		        url: '/signup',
-		        templateUrl: 'templates/signup.html',
+		        templateUrl: 'app/templates/signup.html',
 		        controller: 'SignupCtrl'
 		      })
 	      	.state('logout', {
@@ -22,12 +22,12 @@ angular.module("Jarl", ['ngResource', 'ngMessages', 'ui.router', 'mgcrea.ngStrap
 	      	})
 	      	.state('profile', {
 	      		url: "/profile",
-	      		templateUrl: "templates/profile.html",
+	      		templateUrl: "app/templates/profile.html",
 	      		controller: "ProfileCtrl"
 	      	})
 	      	.state('newPost', {
 	      		url: "/new",
-	      		templateUrl: "templates/newPost.html",
+	      		templateUrl: "app/templates/newPost.html",
 	      		controller: "newPostCtrl"
 	      	})
 	})

@@ -91,7 +91,6 @@
         twitter: {
           name: 'twitter',
           url: '/auth/twitter',
-          authorizationEndpoint: 'https://api.twitter.com/oauth/authenticate',
           type: '1.0',
           popupOptions: { width: 495, height: 645 }
         },
@@ -187,10 +186,6 @@
         platform: {
           get: function() { return config.platform; },
           set: function(value) { config.platform = value; }
-        },
-        storage: {
-          get: function() { return config.storage; },
-          set: function(value) { config.storage = value; }
         }
       });
 
@@ -267,10 +262,6 @@
             return shared.getPayload();
           };
 
-          $auth.setStorage = function(type) {
-            return shared.setStorage(type);
-          };
-
           return $auth;
         }];
 
@@ -325,7 +316,7 @@
 
           if (config.loginRedirect && !redirect) {
             $location.path(config.loginRedirect);
-          } else if (redirect && angular.isString(redirect)) {
+          }  else if (redirect && angular.isString(redirect)) {
             $location.path(encodeURI(redirect));
           }
         };
@@ -362,10 +353,6 @@
           }
 
           return $q.when();
-        };
-
-        shared.setStorage = function(type) {
-          config.storage = type;
         };
 
         return shared;
@@ -483,8 +470,7 @@
 
             var url = defaults.authorizationEndpoint + '?' + oauth2.buildQueryString();
 
-            return popup.open(url, defaults.name, defaults.popupOptions, defaults.redirectUri)
-              .pollPopup()
+            return popup.open(url, defaults.popupOptions, defaults.redirectUri)
               .then(function(oauthData) {
                 if (defaults.responseType === 'token') {
                   return oauthData;
@@ -563,31 +549,25 @@
             url: null,
             name: null,
             popupOptions: null,
-            redirectUri: null,
-            authorizationEndpoint: null
+            redirectUri: null
           };
 
           var oauth1 = {};
 
           oauth1.open = function(options, userData) {
             angular.extend(defaults, options);
-            var serverUrl = config.baseUrl ? utils.joinUrl(config.baseUrl, defaults.url) : defaults.url;
-            var popupWindow = popup.open('', defaults.name, defaults.popupOptions, defaults.redirectUri);
-            return $http.post(serverUrl)
+            var popupUrl = config.baseUrl ? utils.joinUrl(config.baseUrl, defaults.url) : defaults.url;
+            return popup.open(popupUrl, defaults.popupOptions, defaults.redirectUri)
               .then(function(response) {
-                popupWindow.popupWindow.location.href = [defaults.authorizationEndpoint, oauth1.buildQueryString(response.data)].join('?');
-                return popupWindow.pollPopup()
-                  .then(function(response) {
-                    return oauth1.exchangeForToken(response, userData);
-                  });
+                return oauth1.exchangeForToken(response, userData);
               });
-
           };
 
           oauth1.exchangeForToken = function(oauthData, userData) {
             var data = angular.extend({}, userData, oauthData);
+            var qs = oauth1.buildQueryString(data);
             var exchangeForTokenUrl = config.baseUrl ? utils.joinUrl(config.baseUrl, defaults.url) : defaults.url;
-            return $http.post(exchangeForTokenUrl, data, { withCredentials: config.withCredentials });
+            return $http.get(exchangeForTokenUrl + '?' + qs);
           };
 
           oauth1.buildQueryString = function(obj) {
@@ -611,33 +591,36 @@
       'satellizer.config',
       'satellizer.utils',
       function($q, $interval, $window, $location, config, utils) {
+        var popupWindow = null;
+        var polling = null;
+
         var popup = {};
-        popup.url = '';
-        popup.popupWindow = null;
 
-        popup.open = function(url, windowName, options, redirectUri) {
-          popup.url = url;
+        popup.popupWindow = popupWindow;
 
-          var stringifiedOptions = popup.stringifyOptions(popup.prepareOptions(options || {}));
+        popup.open = function(url, options, redirectUri) {
+          var optionsString = popup.stringifyOptions(popup.prepareOptions(options || {}));
 
-          popup.popupWindow = window.open(url, windowName, stringifiedOptions);
+          popupWindow = window.open(url, '_blank', optionsString);
 
-          if (popup.popupWindow && popup.popupWindow.focus) {
-            popup.popupWindow.focus();
+          if (popupWindow && popupWindow.focus) {
+            popupWindow.focus();
           }
 
           if (config.platform === 'mobile') {
             return popup.eventListener(redirectUri);
           }
 
-          return popup;
+          return popup.pollPopup();
         };
 
         popup.eventListener = function(redirectUri) {
           var deferred = $q.defer();
 
-          popup.popupWindow.addEventListener('loadstart', function(event) {
-            if (event.url.indexOf(redirectUri) !== 0) { return; }
+          popupWindow.addEventListener('loadstart', function(event) {
+            if (event.url.indexOf(redirectUri) !== 0) {
+              return;
+            }
 
             var parser = document.createElement('a');
             parser.href = event.url;
@@ -656,15 +639,15 @@
                 deferred.resolve(qs);
               }
 
-              popup.popupWindow.close();
+              popupWindow.close();
             }
           });
 
-          popup.popupWindow.addEventListener('exit', function() {
+          popupWindow.addEventListener('exit', function() {
             deferred.reject({ data: 'Provider Popup was closed' });
           });
 
-          popup.popupWindow.addEventListener('loaderror', function() {
+          popupWindow.addEventListener('loaderror', function() {
             deferred.reject({ data: 'Authorization Failed' });
           });
 
@@ -672,17 +655,16 @@
         };
 
         popup.pollPopup = function() {
-          var polling;
           var deferred = $q.defer();
-
           polling = $interval(function() {
             try {
+              
               var documentOrigin = document.location.host + ':' + document.location.port,
-                popupWindowOrigin = popup.popupWindow.location.host + ':' + popup.popupWindow.location.port;
+                  popupWindowOrigin = popupWindow.location.host + ':' + popupWindow.location.port;
 
-              if (popupWindowOrigin === documentOrigin && (popup.popupWindow.location.search || popup.popupWindow.location.hash)) {
-                var queryParams = popup.popupWindow.location.search.substring(1).replace(/[\/$]/, '');
-                var hashParams = popup.popupWindow.location.hash.substring(1).replace(/[\/$]/, '');
+              if (popupWindowOrigin === documentOrigin && (popupWindow.location.search || popupWindow.location.hash)) {
+                var queryParams = popupWindow.location.search.substring(1).replace(/\/$/, '');
+                var hashParams = popupWindow.location.hash.substring(1).replace(/\/$/, '');
                 var hash = utils.parseQueryString(hashParams);
                 var qs = utils.parseQueryString(queryParams);
 
@@ -694,16 +676,16 @@
                   deferred.resolve(qs);
                 }
 
-                popup.popupWindow.close();
+                popupWindow.close();
                 $interval.cancel(polling);
               }
             } catch (error) {
             }
 
-            if (!popup.popupWindow) {
+            if (!popupWindow) {
               $interval.cancel(polling);
               deferred.reject({ data: 'Provider Popup Blocked' });
-            } else if (popup.popupWindow.closed || popup.popupWindow.closed === undefined) {
+            } else if (popupWindow.closed || popupWindow.closed === undefined) {
               $interval.cancel(polling);
               deferred.reject({ data: 'Authorization Failed' });
             }
@@ -809,18 +791,15 @@
       function($q, config, storage) {
         var tokenName = config.tokenPrefix ? config.tokenPrefix + '_' + config.tokenName : config.tokenName;
         return {
-          request: function(request) {
-            if (request.skipAuthorization) {
-              return request;
-            }
+          request: function(httpConfig) {
             var token = storage.get(tokenName);
             if (token && config.httpInterceptor) {
               if (config.authHeader && config.authToken) {
                 token = config.authToken + ' ' + token;
               }
-              request.headers[config.authHeader] = token;
+              httpConfig.headers[config.authHeader] = token;
             }
-            return request;
+            return httpConfig;
           },
           responseError: function(response) {
             return $q.reject(response);
