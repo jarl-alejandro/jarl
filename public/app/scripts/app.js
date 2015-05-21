@@ -1,5 +1,6 @@
 angular.module("Jarl", ['ngResource', 'ui.router', 'satellizer'])
 	.config(function($stateProvider, $urlRouterProvider, $authProvider){
+		//$locationProvider.html5Mode(true);
 		$stateProvider
 			.state('home', {
 				url: "/",
@@ -29,5 +30,10 @@ angular.module("Jarl", ['ngResource', 'ui.router', 'satellizer'])
 	      		url: "/new",
 	      		templateUrl: "app/templates/newPost.html",
 	      		controller: "newPostCtrl"
+	      	})
+	      	.state('post', {
+	      		url: "/post/:id",
+	      		templateUrl: "app/templates/postDetail.html",
+	      		controller: "postDetailCtrl"
 	      	})
 	})

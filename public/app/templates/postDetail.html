@@ -1,0 +1,30 @@
+<article>
+	<div class="header">
+		<h3>Detalles del post</h3>
+	</div>
+	<div class="content">
+		<h2 class="title-post">
+			{{ post.title }}
+		</h2>
+		<div class="user">
+			<h5>Este post ha sido creado por {{ post.user.email }}</h5>
+		</div>
+		<p class="desc-post">
+			{{ post.descripcion }}
+		</p>
+		<p class="body post">
+			{{ post.body }}
+		</p>
+	</div>
+</article><hr>
+<article class="comments">
+	<form ng-submit="saveComment()">
+		<input type="text" placeholder="Que tal te parecio este post" ng-model="commentTxt" />
+		<input type="submit" />
+	</form><hr>
+	<ul>
+		<li ng-repeat="message in messages">
+			<p>{{ message.data.comment }}- {{ message.user }}</p>
+		</li>
+	</ul>
+</article>

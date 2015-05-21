@@ -12,5 +12,6 @@ angular.module('Jarl')
 				$location.path('/profile')
 				console.log(data)
 			})
-		}	
+		}
+			
 	})

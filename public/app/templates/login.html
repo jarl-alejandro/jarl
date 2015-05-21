@@ -1,12 +1,17 @@
+<h1>Login</h1>
+
 <form method="post" ng-submit="login()" name="loginForm">
-    <div>
-        <input type="email" name="email" ng-model="email" placeholder="Email" required  autofocus>
-    </div>
+	<span class="fa fa-mail"></span>	
+    <input type="email" ng-model="email" placeholder="Email" ng-required="true" autofocus>
     <div>
         <input type="password" name="password" ng-model="password" placeholder="Password" required>
     </div>
     <button type="submit" ng-disabled="loginForm.$invalid">Log in</button>
+
+</form>
+
+<article>
     <p class="text-center text-muted">
         <small>Don't have an account yet? <a href="/#/signup">Sign up</a></small>
-    </p>
-</form>
+    </p>        
+</article>
