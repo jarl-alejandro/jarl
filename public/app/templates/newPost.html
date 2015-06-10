@@ -1,4 +1,8 @@
-
+<div class="info">
+	<p>{{ user.displayName }}</p>
+	<span class="fa fa-user"></span>
+	<p>{{ user.email }}</p>			
+</div>
 <form ng-submit="savePost()">
 	<input type="text" ng-model="post.title" placeholder="Escribe un titulo">
 	<input type="text" ng-model="post.descripcion" placeholder="Escribe tu desc">

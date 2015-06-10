@@ -1,3 +1,8 @@
+	<div class="info">
+		<p>{{ user.displayName }}</p>
+		<span class="fa fa-user"></span>
+		<p>{{ user.email }}</p>			
+	</div>
 <article>
 	<div class="header">
 		<h3>Detalles del post</h3>
@@ -20,11 +25,11 @@
 <article class="comments">
 	<form ng-submit="saveComment()">
 		<input type="text" placeholder="Que tal te parecio este post" ng-model="commentTxt" />
-		<input type="submit" />
+		<input type="submit" value="comentar" />
 	</form><hr>
 	<ul>
 		<li ng-repeat="message in messages">
-			<p>{{ message.data.comment }}- {{ message.user }}</p>
+			<p>{{ message.title }} {{ message.comment }}- {{ message.user.email }}</p>
 		</li>
 	</ul>
 </article>

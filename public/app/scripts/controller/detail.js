@@ -1,20 +1,34 @@
 angular.module('Jarl')
-	.controller('postDetailCtrl', function($scope, $stateParams, Account, PostResource, socket){
-		$scope.post = PostResource.get({ id:$stateParams.id })
-		  $scope.messages = []
+	.controller('postDetailCtrl', function($scope, $stateParams, Account, PostResource, socket, CommentResource){
 
-		$scope.saveComment = function(){
-			var message = {
-				'comment': $scope.commentTxt
-			}
-		
-			socket.emit('send::message', message)
-			$scope.commentTxt = null
-		}
+        $scope.getProfile = function(){
+            Account.getProfile()
+            .success(function(data){
+                $scope.user = data
+            })
+            .error(function(err){
+                alert(err)
+            })
+        }
 
-		socket.on('get::message', function (data) {
-			$scope.messages.unshift(data)
+        //$scope.messages = []
+        $scope.post = PostResource.get({ id:$stateParams.id });
+        $scope.messages = CommentResource.query({ postId:$stateParams.id });
+        $scope.getProfile();
+
+        $scope.saveComment = function(){
+            var message = {
+                'comment': $scope.commentTxt,
+                'user': $scope.user,
+                'post': $scope.post
+            }
+
+            socket.emit('send::message', message)
+            $scope.commentTxt = null
+        }
+
+        socket.on('get::message', function(data){
+            $scope.messages.unshift(data)
             $scope.$digest()
         })
-
-	})
+    })

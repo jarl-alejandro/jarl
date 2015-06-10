@@ -12,5 +12,4 @@ angular.module('Jarl')
 
         $scope.getProfile()
         $scope.posts = PostResource.query()
-        console.log('alo')
     })

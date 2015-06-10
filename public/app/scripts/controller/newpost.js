@@ -1,7 +1,9 @@
-angular.module('Jarl')
+'use strict';
+
+var app = angular.module('Jarl')
 	.controller('newPostCtrl', function($scope, $location, PostResource){
 
-		$scope.post = {}
+		$scope.post = {};
 
 		$scope.savePost = function(){
 			PostResource.save({
@@ -9,9 +11,8 @@ angular.module('Jarl')
 				'body': $scope.post.body,
 				'descripcion': $scope.post.descripcion
 			}, function(data){
-				$location.path('/profile')
-				console.log(data)
-			})
-		}
-			
-	})
+				$location.path('/profile');
+				console.log(data);
+			});
+		};	
+	});
